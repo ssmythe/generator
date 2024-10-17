@@ -1,5 +1,5 @@
 def test_load_recipes():
-    from app import load_blocks, load_recipes
+    from generator import load_blocks, load_recipes
     blocks_dir = "test_data/blocks/"
     recipes_dir = "test_data/recipes/"
     blocks = load_blocks(blocks_dir)

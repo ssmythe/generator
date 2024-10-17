@@ -38,9 +38,3 @@ def apply_vars(content, vars_data):
         content = content.replace(placeholder, value)
 
     return content
-
-
-def load_lists(lists_file):
-    with open(lists_file, 'r') as file:
-        lines = file.read().splitlines()  # Split the file into lines, removing newlines
-    return lines

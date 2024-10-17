@@ -2,7 +2,7 @@
 
 
 def test_load_blocks():
-    from app import load_blocks
+    from generator import load_blocks
     blocks_dir = "test_data/blocks/"
     blocks = load_blocks(blocks_dir)
 

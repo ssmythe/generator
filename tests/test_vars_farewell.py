@@ -1,5 +1,5 @@
 def test_vars_farewell():
-    from app import load_blocks, load_recipes, load_vars, apply_vars
+    from generator import load_blocks, load_recipes, load_vars, apply_vars
     blocks_dir = "test_data/blocks/"
     recipes_dir = "test_data/recipes/"
     vars_file = "test_data/vars/farewell.json"
