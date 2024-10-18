@@ -82,8 +82,7 @@ def apply_vars(recipe_content, vars_data):
     )
     for key, value in vars_data.get("vars", {}).items():
         recipe_content = recipe_content.replace(
-            f'{delimiters["left_delimiter"]}{key}{
-                delimiters["right_delimiter"]}',
+            f'{delimiters["left_delimiter"]}{key}{delimiters["right_delimiter"]}',
             value,
         )
     return recipe_content
