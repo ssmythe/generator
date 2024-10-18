@@ -1,7 +1,7 @@
 def test_vars_greeting():
     from generator import load_blocks, load_recipes, load_vars, apply_vars
-    blocks_dir = "test_data/blocks/"
-    recipes_dir = "test_data/recipes/"
+    blocks_dir = "test_data/blocks/jinja2/"
+    recipes_dir = "test_data/recipes/jinja2/"
     vars_file = "test_data/vars/greeting.json"
 
     # Load the blocks and recipes

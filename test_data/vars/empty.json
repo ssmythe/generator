@@ -1,0 +1,8 @@
+{
+    "delimiters": {
+        "left_delimiter": "{{ ",
+        "right_delimiter": " }}"
+    },
+    "vars": {
+    }
+}
