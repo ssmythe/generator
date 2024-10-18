@@ -122,7 +122,6 @@ def main():
     # Open output file for writing
     with open(args.output, 'w') as output_file:
         for blocks_dir, recipes_dir, vars_file in list_entries:
-            blocks = load_blocks(blocks_dir)
             vars_data = load_vars(vars_file)
 
             # Process each recipe in the directory
