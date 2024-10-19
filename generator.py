@@ -6,38 +6,39 @@ import json
 import sys
 
 
-def load_blocks(directory):
-    """Load all blocks from the specified directory."""
+def load_blocks(blocks_dir):
     blocks = {}
-    try:
-        for filename in os.listdir(directory):
-            file_path = os.path.join(directory, filename)
-            with open(file_path, "r") as file:
-                blocks[filename] = file.read()
-    except FileNotFoundError:
-        print(f"Error: Directory {directory} does not exist.")
-        sys.exit(1)
+    if not os.path.exists(blocks_dir):
+        raise FileNotFoundError(f"The directory '{blocks_dir}' does not exist.")
+
+    for block_file in os.listdir(blocks_dir):
+        block_path = os.path.join(blocks_dir, block_file)
+        if os.path.isfile(block_path):
+            with open(block_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                blocks[os.path.splitext(block_file)[0]] = content
+
     return blocks
 
 
 def load_recipes(directory, blocks):
     """Load and assemble recipes using the blocks."""
     recipes = {}
-    try:
-        for filename in os.listdir(directory):
-            file_path = os.path.join(directory, filename)
-            with open(file_path, "r") as file:
-                recipe_content = file.read().splitlines()
-                combined_content = "".join(
-                    [
-                        blocks.get(line, f"{{missing block: {line}}}")
-                        for line in recipe_content
-                    ]
-                )
-                recipes[filename] = combined_content
-    except FileNotFoundError:
-        print(f"Error: Directory {directory} does not exist.")
-        sys.exit(1)
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"The directory '{directory}' does not exist.")
+
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        with open(file_path, "r") as file:
+            # Step 1: Read recipe file as is
+            recipe_content = file.read().splitlines()
+
+            # Step 2: Concatenate blocks together
+            combined_content = "".join(blocks.get(line, f"{{missing block: {line}}}") for line in recipe_content)
+
+            # Step 3: Put concatenated content into recipe dictionary
+            recipes[os.path.splitext(filename)[0]] = combined_content
+
     return recipes
 
 
@@ -57,12 +58,14 @@ def load_vars(vars_file):
 def load_list(list_file):
     """Load the blocks directory, recipes directory, vars file, and output filename from each line in the list file."""
     try:
-        with open(list_file, 'r') as file:
+        with open(list_file, "r") as file:
             data = []
             for line in file:
-                parts = line.strip().split(',')
+                parts = line.strip().split(",")
                 if len(parts) != 4:
-                    raise ValueError(f"Invalid line in list file: {line.strip()}. Expected format: 'blocks_dir,recipes_dir,vars_file,output_filename'.")
+                    raise ValueError(
+                        f"Invalid line in list file: {line.strip()}. Expected format: 'blocks_dir,recipes_dir,vars_file,output_filename'."
+                    )
                 data.append(tuple(parts))
         return data
     except FileNotFoundError:
@@ -86,25 +89,49 @@ def apply_vars(recipe_content, vars_data):
     return recipe_content
 
 
-def assemble_recipe(recipe_file, blocks_dir):
-    """Assemble the recipe using blocks."""
-    try:
-        with open(recipe_file, "r") as file:
-            block_names = file.read().splitlines()
+def assemble_recipe(recipe_name, recipes, vars_data):
+    """Assemble the recipe using the provided recipe content and perform variable substitution."""
+    # Get the recipe content from the recipes dictionary
+    if recipe_name not in recipes:
+        raise FileNotFoundError(f"Recipe '{recipe_name}' not found in recipes.")
+    assembled_recipe = recipes[recipe_name]
 
-        assembled_recipe = ""
-        for block_name in block_names:
-            block_file = os.path.join(blocks_dir, block_name)
-            if os.path.exists(block_file):
-                with open(block_file, "r") as block:
-                    assembled_recipe += block.read()
-            else:
-                print(f"Error: Block {block_name} not found.")
-                sys.exit(1)  # Ensure we raise SystemExit here
-        return assembled_recipe
-    except FileNotFoundError:
-        print(f"Error: Recipe file {recipe_file} does not exist.")
-        sys.exit(1)
+    # Perform variable substitution if applicable
+    delimiters = vars_data.get("delimiters", {})
+    left_delim = delimiters.get("left_delimiter", "{{ ")
+    right_delim = delimiters.get("right_delimiter", " }}")
+    for key, value in vars_data.get("vars", {}).items():
+        assembled_recipe = assembled_recipe.replace(f"{left_delim}{key}{right_delim}", value)
+    
+    return assembled_recipe
+
+
+def process_list(list_file, output_dir):
+    """Process the list file and output the generated files."""
+    # Load the list file
+    list_data = load_list(list_file)
+
+    # Iterate through each list entry and process accordingly
+    for blocks_dir, recipe_file, vars_file, output_file in list_data:
+        # Load blocks, recipes, and vars
+        blocks = load_blocks(blocks_dir)
+        recipes_dir = os.path.dirname(recipe_file)
+        recipe_name = os.path.basename(recipe_file)
+        recipes = load_recipes(recipes_dir, blocks)
+        vars_data = load_vars(vars_file)
+
+        # Generate the output path
+        output_path = os.path.join(output_dir, os.path.basename(output_file))
+
+        # Assemble the recipe using the loaded components
+        assembled_content = assemble_recipe(recipe_name, recipes, vars_data)
+
+        # Write the assembled content to the output file
+        with open(output_path, "w") as f:
+            f.write(assembled_content)
+
+    print(f"Processed list from {list_file} and saved output to {output_dir}")
+
 
 
 def main():

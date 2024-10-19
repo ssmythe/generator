@@ -1,5 +1,7 @@
+from generator import load_vars
+
+
 def test_load_vars():
-    from generator import load_vars
     vars_file = "test_data/vars/greeting.json"
 
     # Load the variables from the JSON file

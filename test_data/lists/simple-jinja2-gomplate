@@ -1,0 +1,3 @@
+test_data/blocks/simple,test_data/recipes/simple/abc,test_data/vars/empty.json,tmp_output_dir/simple.txt
+test_data/blocks/jinja2,test_data/recipes/jinja2/greeting,test_data/vars/greeting.json,tmp_output_dir/greeting.txt
+test_data/blocks/gomplate,test_data/recipes/gomplate/farewell,test_data/vars/farewell.json,tmp_output_dir/farewell.txt
