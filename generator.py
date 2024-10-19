@@ -55,16 +55,14 @@ def load_vars(vars_file):
 
 
 def load_list(list_file):
-    """Load the blocks directory, recipes directory, and vars file from each line in the list file."""
+    """Load the blocks directory, recipes directory, vars file, and output filename from each line in the list file."""
     try:
-        with open(list_file, "r") as file:
+        with open(list_file, 'r') as file:
             data = []
             for line in file:
-                parts = line.strip().split(",")
-                if len(parts) != 3:
-                    raise ValueError(
-                        f"Invalid line in list file: {line.strip()}. Expected format: 'blocks_dir,recipes_dir,vars_file'."
-                    )
+                parts = line.strip().split(',')
+                if len(parts) != 4:
+                    raise ValueError(f"Invalid line in list file: {line.strip()}. Expected format: 'blocks_dir,recipes_dir,vars_file,output_filename'.")
                 data.append(tuple(parts))
         return data
     except FileNotFoundError:
@@ -78,7 +76,7 @@ def load_list(list_file):
 def apply_vars(recipe_content, vars_data):
     """Apply variables to the recipe content."""
     delimiters = vars_data.get(
-        "delimiters", {"left_delimiter": "{{", "right_delimiter": "}}"}
+        "delimiters", {"left_delimiter": "{{ ", "right_delimiter": " }}"}
     )
     for key, value in vars_data.get("vars", {}).items():
         recipe_content = recipe_content.replace(
@@ -99,7 +97,7 @@ def assemble_recipe(recipe_file, blocks_dir):
             block_file = os.path.join(blocks_dir, block_name)
             if os.path.exists(block_file):
                 with open(block_file, "r") as block:
-                    assembled_recipe += block.read() + "\n"
+                    assembled_recipe += block.read()
             else:
                 print(f"Error: Block {block_name} not found.")
                 sys.exit(1)  # Ensure we raise SystemExit here
@@ -115,41 +113,44 @@ def main():
         "--list",
         "-l",
         type=str,
-        help="Set the list file containing directories and vars info",
+        help="Set the list file containing directories, vars info, and output filenames",
         required=True,
     )
     parser.add_argument(
         "--output",
         "-o",
         type=str,
-        help="Set the output file for rendered recipes",
+        help="Set the top-level output directory for rendered files",
         required=True,
     )
 
     args = parser.parse_args()
 
-    # Load list file data (blocks_dir, recipes_dir, vars_file)
-    list_file = args.list
-    if not os.path.exists(list_file):
-        print(f"Error: List file {list_file} does not exist.")
-        sys.exit(1)
+    # Ensure output directory exists
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
-    # Load all entries from the list file
-    list_entries = load_list(list_file)
+    # Load list file data (blocks_dir, recipes_dir, vars_file, output_filename)
+    list_entries = load_list(args.list)
 
-    # Open output file for writing
-    with open(args.output, "w") as output_file:
-        for blocks_dir, recipes_dir, vars_file in list_entries:
-            vars_data = load_vars(vars_file)
+    # Process each entry in the list file
+    for blocks_dir, recipes_dir, vars_file, output_filename in list_entries:
+        vars_data = load_vars(vars_file)
 
-            # Process each recipe in the directory
-            for recipe_filename in os.listdir(recipes_dir):
-                recipe_file = os.path.join(recipes_dir, recipe_filename)
-                recipe_content = assemble_recipe(recipe_file, blocks_dir)
-                final_content = apply_vars(recipe_content, vars_data)
-                output_file.write(final_content + "\n")
+        # Process each recipe in the directory
+        for recipe_filename in os.listdir(recipes_dir):
+            recipe_file = os.path.join(recipes_dir, recipe_filename)
+            recipe_content = assemble_recipe(recipe_file, blocks_dir)
+            final_content = apply_vars(recipe_content, vars_data)
 
-    print(f"Rendered output written to: {args.output}")
+            # Apply vars substitution to the output filename
+            final_output_filename = apply_vars(output_filename, vars_data)
+
+            # Write the final content to the output file
+            output_file_path = os.path.join(args.output, final_output_filename)
+            with open(output_file_path, "w") as output_file:
+                output_file.write(final_content)
+                print(f"Rendered output written to: {output_file_path}")
 
 
 if __name__ == "__main__":

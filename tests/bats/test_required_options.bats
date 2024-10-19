@@ -1,11 +1,23 @@
 #!/usr/bin/env bats
 
+setup() {
+  rm -rf test_output_dir
+  mkdir test_output_dir
+}
+
+teardown() {
+  rm -rf test_output_dir
+}
+
 # Test that all required options are provided
 @test "all required options are provided" {
-  output_file="test_output.txt"
-  run coverage run --append ./generator.py --list test_data/lists/sample_list --output $output_file
+  run coverage run --append ./generator.py --list test_data/lists/sample_list --output test_output_dir
   [ "$status" -eq 0 ]
-  [ -f "$output_file" ]
+
+  # Check if the expected output files are created in the directory
+  [ -f "test_output_dir/simple.txt" ]
+  [ -f "test_output_dir/greeting.txt" ]
+  [ -f "test_output_dir/farewell.txt" ]
 }
 
 # Test missing options shows usage

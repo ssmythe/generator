@@ -1,21 +1,36 @@
 #!/usr/bin/env bats
 
+setup() {
+  rm -rf test_output_dir
+  mkdir test_output_dir
+}
+
+teardown() {
+  rm -rf test_output_dir
+}
+
 # Test the --output option
-@test "--output option writes rendered recipes to file" {
-  output_file="test_output.txt"
-  run coverage run --append ./generator.py --list test_data/lists/sample_list --output $output_file
+@test "--output option writes rendered recipes to directory" {
+  run coverage run --append ./generator.py --list test_data/lists/sample_list --output test_output_dir
   echo "Command Output: $output"
   echo "Exit Status: $status"
   [ "$status" -eq 0 ]
-  [ -f "$output_file" ]
+
+  # Check if the expected output files are created in the directory
+  [ -f "test_output_dir/simple.txt" ]
+  [ -f "test_output_dir/greeting.txt" ]
+  [ -f "test_output_dir/farewell.txt" ]
 }
 
 # Test the -o shorthand option
-@test "-o option writes rendered recipes to file" {
-  output_file="test_output.txt"
-  run coverage run --append ./generator.py -l test_data/lists/sample_list -o $output_file
+@test "-o option writes rendered recipes to directory" {
+  run coverage run --append ./generator.py -l test_data/lists/sample_list -o test_output_dir
   echo "Command Output: $output"
   echo "Exit Status: $status"
   [ "$status" -eq 0 ]
-  [ -f "$output_file" ]
+
+  # Check if the expected output files are created in the directory
+  [ -f "test_output_dir/simple.txt" ]
+  [ -f "test_output_dir/greeting.txt" ]
+  [ -f "test_output_dir/farewell.txt" ]
 }

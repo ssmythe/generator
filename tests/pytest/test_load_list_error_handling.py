@@ -1,4 +1,6 @@
 import pytest
+import tempfile
+from generator import load_list  # Import the function you're testing
 
 
 def test_missing_list_file():
@@ -10,14 +12,15 @@ def test_missing_list_file():
         load_list(missing_list_file)
 
 
-def test_malformed_list_file(tmpdir):
-    from generator import load_list
+def test_malformed_list_file():
+    malformed_content = "test_data/blocks/simple,test_data/recipes/simple"
 
-    malformed_list = tmpdir.join("malformed_list")
-    malformed_list.write("test_data/blocks_simple,test_data/recipes_simple")
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(malformed_content.encode("utf-8"))
+        temp_file.close()
 
     with pytest.raises(SystemExit):
-        load_list(str(malformed_list))
+        load_list(temp_file.name)
 
 
 def test_missing_blocks_dir():
