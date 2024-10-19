@@ -39,34 +39,34 @@ The Generator is a Python command-line tool that processes blocks of text, aggre
 ## Usage
 
 ```bash
-./generator.py --list <list_file> --output <output_file>
+./generator.py --list <list_file> --output <output_dir>
 ```
 
 ### Options:
 - `--list`, `-l`: Path to the CSV file containing block, recipe, and vars directories.
-- `--output`, `-o`: Output file where the rendered recipe will be saved.
+- `--output`, `-o`: Output directory where the rendered recipe files will be saved.
 
 ### Example:
 
 ```bash
-./generator.py --list test_data/lists/sample_list --output output.txt
+./generator.py --list test_data/lists/sample_list --output output_dir
 ```
 
 The list file should have the following format:
 
 ```
-<blocks_directory>,<recipes_directory>,<vars_file>
+<blocks_directory>,<recipes_directory>,<vars_file>,<output_filename>
 ```
 
 Example `sample_list`:
 
 ```
-test_data/blocks/simple,test_data/recipes/simple,test_data/vars/abc.json
-test_data/blocks/jinja2,test_data/recipes/jinja2,test_data/vars/greeting.json
-test_data/blocks/gomplate,test_data/recipes/gomplate,test_data/vars/farewell.json
+test_data/blocks/simple,test_data/recipes/simple,test_data/vars/empty.json,simple.txt
+test_data/blocks/jinja2,test_data/recipes/jinja2,test_data/vars/greeting.json,greeting.txt
+test_data/blocks/gomplate,test_data/recipes/gomplate,test_data/vars/farewell.json,farewell.txt
 ```
 
-This structure allows the generator to process multiple block directories, recipes, and variable files in one run.
+This structure allows the generator to process multiple block directories, recipes, and variable files in one run and write the rendered content to files in the output directory.
 
 ### Blocks
 
@@ -111,13 +111,13 @@ Example `vars.json`:
 ### Full Command Example
 
 ```bash
-./generator.py --list test_data/lists/sample_list --output result.txt
+./generator.py --list test_data/lists/sample_list --output output_dir
 ```
 
 This command will:
 1. Load the blocks and recipes as defined in `sample_list`.
 2. Perform variable substitutions using the vars files.
-3. Write the final assembled output to `result.txt`.
+3. Write the final assembled outputs to files in the specified output directory.
 
 ## Testing
 
