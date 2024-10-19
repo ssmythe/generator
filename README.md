@@ -1,137 +1,85 @@
-
-# Generator
+# Project: Generator
 
 ## Overview
+This project is a Python-based content generator that assembles blocks of text into recipes, allowing for variable substitution. It is designed for command-line use and supports processing blocks, recipes, variables, and lists in a streamlined manner.
 
-The Generator is a Python command-line tool that processes blocks of text, aggregates them into recipes, applies variable substitutions, and writes the final output to a file. The blocks, recipes, and variables are defined in a structured way, and the app allows you to specify multiple lists of directories and variables to generate multiple outputs.
-
-## Features
-
-- **Blocks**: Individual pieces of content that can be assembled into larger outputs.
-- **Recipes**: Files that reference block names and combine them into structured outputs.
-- **Variable Substitution**: Replaces placeholders in recipes with values from a JSON file.
-- **List Files**: Manages block, recipe, and variable directories in a CSV format.
-- **Error Handling**: Provides feedback for missing or incorrect files.
+### Features:
+- Load and concatenate text blocks.
+- Assemble recipes from defined blocks.
+- Substitute variables in the assembled content.
+- Supports processing list files that specify blocks, recipes, vars, and output filenames.
+- Command-line usage with options for list and output directories.
 
 ## Requirements
-
-- Python 3.8 or newer
-- Dependencies listed in `requirements.txt` (can be installed using `pip`)
+- Python 3.x
+- Required Python libraries are specified in `requirements.txt`. Install them with:
+  ```sh
+  pip install -r requirements.txt
+  ```
+- Coverage (for running coverage tests)
 
 ## Installation
-
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/ssmythe/generator.git
+   ```sh
+   git clone <repository_url>
    cd generator
    ```
-
-2. Install dependencies:
-   ```bash
+2. Install the required dependencies:
+   ```sh
    pip install -r requirements.txt
    ```
 
-3. Make sure the script is executable:
-   ```bash
-   chmod +x generator.py
-   ```
-
 ## Usage
+This project is designed to be run from the command line to generate content from blocks, recipes, and variables defined in separate files. The command-line options allow the user to specify a list file and output directory.
 
-```bash
-./generator.py --list <list_file> --output <output_dir>
+### Command-Line Options
+- `--list` or `-l`: Specify the path to the list file.
+- `--output` or `-o`: Specify the directory to save the output files.
+- `--help`: Display usage instructions.
+
+Example usage:
+```sh
+python generator.py --list test_data/lists/simple-jinja2-gomplate --output output_dir
 ```
 
-### Options:
-- `--list`, `-l`: Path to the CSV file containing block, recipe, and vars directories.
-- `--output`, `-o`: Output directory where the rendered recipe files will be saved.
-
-### Example:
-
-```bash
-./generator.py --list test_data/lists/sample_list --output output_dir
-```
-
-The list file should have the following format:
-
-```
-<blocks_directory>,<recipes_directory>,<vars_file>,<output_filename>
-```
-
-Example `sample_list`:
-
-```
-test_data/blocks/simple,test_data/recipes/simple,test_data/vars/empty.json,simple.txt
-test_data/blocks/jinja2,test_data/recipes/jinja2,test_data/vars/greeting.json,greeting.txt
-test_data/blocks/gomplate,test_data/recipes/gomplate,test_data/vars/farewell.json,farewell.txt
-```
-
-This structure allows the generator to process multiple block directories, recipes, and variable files in one run and write the rendered content to files in the output directory.
-
-### Blocks
-
-A block is a text file located in a block directory. Blocks can be used in recipes by referring to their filenames.
-
-Example `block1.txt`:
-
-```
-Hello, {{name}}!
-```
-
-### Recipes
-
-A recipe contains a list of block filenames. The generator assembles the blocks in the order they are listed.
-
-Example `greeting.recipe`:
-
-```
-block1.txt
-block2.txt
-```
-
-### Vars
-
-Vars files are JSON files that map variable names to their values. These values are substituted in the final output.
-
-Example `vars.json`:
-
-```json
-{
-  "delimiters": {
-    "left_delimiter": "{{",
-    "right_delimiter": "}}"
-  },
-  "vars": {
-    "name": "Alice",
-    "farewell": "Goodbye"
-  }
-}
-```
-
-### Full Command Example
-
-```bash
-./generator.py --list test_data/lists/sample_list --output output_dir
-```
-
-This command will:
-1. Load the blocks and recipes as defined in `sample_list`.
-2. Perform variable substitutions using the vars files.
-3. Write the final assembled outputs to files in the specified output directory.
+## File Structure
+- **blocks/**: Contains individual blocks of text that are loaded and concatenated.
+- **recipes/**: Define the order in which blocks are concatenated.
+- **vars/**: JSON files that contain variable definitions for substitution in the recipes.
+- **lists/**: CSV files that list the blocks directory, recipe file, vars file, and output filename.
+- **generator.py**: The main script to run the content generation process.
+- **tests/**: Contains both pytest and BATS tests for different components.
+  - `tests/pytest/`: Pytest files for unit testing the generator functions.
+  - `tests/bats/`: BATS files for testing command-line options and overall integration.
 
 ## Testing
-
-The project uses both `pytest` and `BATS` for testing.
-
-### Run All Tests
-
-```bash
-./quality.sh
+### Pytest
+To run unit tests using pytest:
+```sh
+pytest -v tests/pytest/
+```
+### BATS
+To run integration tests using BATS:
+```sh
+bats tests/bats/
 ```
 
-This script will:
-1. Run `pytest` for unit tests with coverage.
-2. Run `BATS` for command-line interface testing.
-3. Combine the coverage results into a single report.
+## Example List File
+An example list file (`simple-jinja2-gomplate`) contains lines specifying the blocks, recipe, vars, and output file. The format is:
+```
+<blocks_dir>,<recipe_file>,<vars_file>,<output_filename>
+```
+Example:
+```
+test_data/blocks/simple,test_data/recipes/simple/abc,test_data/vars/empty.json,tmp_output_dir/simple.txt
+test_data/blocks/jinja2,test_data/recipes/jinja2/greeting,test_data/vars/greeting.json,tmp_output_dir/greeting.txt
+test_data/blocks/gomplate,test_data/recipes/gomplate/farewell,test_data/vars/farewell.json,tmp_output_dir/farewell.txt
+```
 
-The final coverage report will be available in `htmlcov/index.html`.
+## Tests Overview
+- **test_load_blocks.py**: Tests for loading blocks from the blocks directory.
+- **test_load_recipes.py**: Tests for loading recipes from recipe files, including the `FileNotFoundError` condition.
+- **test_load_vars.py**: Tests for loading variables from a JSON file, including a test for invalid JSON.
+- **test_process_list.py**: Tests the process of reading from a list file and generating the corresponding output files.
+- **test_output_options.bats**: Tests the command-line options for specifying the list file and output directory.
+- **test_required_options.bats**: Tests the requirement of all necessary command-line options.
