@@ -23,7 +23,3 @@ def test_assemble_recipe():
         FileNotFoundError, match="Recipe 'unknown' not found in recipes."
     ):
         assemble_recipe("unknown", recipes, vars_data)
-
-
-if __name__ == "__main__":
-    pytest.main()
