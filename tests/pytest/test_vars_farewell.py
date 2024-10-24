@@ -1,5 +1,6 @@
 def test_vars_farewell():
     from generator import load_blocks, load_recipes, load_vars, apply_vars
+
     blocks_dir = "test_data/blocks/gomplate/"
     recipes_dir = "test_data/recipes/gomplate/"
     vars_file = "test_data/vars/farewell.json"

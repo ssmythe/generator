@@ -3,6 +3,7 @@ from generator import load_list  # Import the function you're testing
 import pytest
 import os
 
+
 def test_load_list():
     list_file_content = """test_data/blocks/simple,test_data/recipes/simple,test_data/vars/abc.json,output_{{username}}.txt"""
 
@@ -22,8 +23,10 @@ def test_load_list():
 
 def test_load_list_invalid_format():
     # Create a temporary file with an invalid line format
-    with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_file:
-        temp_file.write("blocks_dir,recipes_dir,vars_file\n")  # Missing the output_filename part
+    with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
+        temp_file.write(
+            "blocks_dir,recipes_dir,vars_file\n"
+        )  # Missing the output_filename part
         temp_filename = temp_file.name
 
     # Test for ValueError in load_list

@@ -142,9 +142,15 @@ def process_list(list_file, output_dir):
 
 def main():
     """Main function to handle command line arguments and call process functions."""
-    parser = argparse.ArgumentParser(description="Process a list file and generate output.")
-    parser.add_argument("--list", "-l", required=True, help="Path to the list file to process.")
-    parser.add_argument("--output", "-o", required=True, help="Directory to save the output files.")
+    parser = argparse.ArgumentParser(
+        description="Process a list file and generate output."
+    )
+    parser.add_argument(
+        "--list", "-l", required=True, help="Path to the list file to process."
+    )
+    parser.add_argument(
+        "--output", "-o", required=True, help="Directory to save the output files."
+    )
     args = parser.parse_args()
 
     # Create the output directory if it doesn't exist
@@ -153,6 +159,7 @@ def main():
 
     # Process the list file
     process_list(args.list, args.output)
+
 
 if __name__ == "__main__":
     main()

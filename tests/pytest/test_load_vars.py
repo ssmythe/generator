@@ -30,7 +30,7 @@ def test_load_missing_vars_file():
 
 def test_load_invalid_vars_file():
     # Create a temporary file with invalid JSON content
-    with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
         temp_file.write("{ invalid json }")
         temp_filename = temp_file.name
 
